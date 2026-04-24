@@ -17,7 +17,8 @@ export function PeriodFilter({ currentPeriod }: { currentPeriod: string }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  function handleChange(value: string) {
+  function handleChange(value: string | null) {
+    if (!value) return
     const params = new URLSearchParams(searchParams.toString())
     params.set('period', value)
     router.replace(`${pathname}?${params.toString()}`)
