@@ -129,7 +129,7 @@ export function DealsTable({ deals, stages, contacts, users, allActivities }: Pr
               </div>
               <div className="space-y-2">
                 <Label>Etapa *</Label>
-                <Select value={newStageId} onValueChange={setNewStageId}>
+                <Select value={newStageId} onValueChange={(v) => setNewStageId(v || '')}>
                   <SelectTrigger><SelectValue placeholder="Selecione a etapa" /></SelectTrigger>
                   <SelectContent>
                     {stages.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
@@ -138,7 +138,7 @@ export function DealsTable({ deals, stages, contacts, users, allActivities }: Pr
               </div>
               <div className="space-y-2">
                 <Label>Contato</Label>
-                <Select value={newContactId} onValueChange={setNewContactId}>
+                <Select value={newContactId} onValueChange={(v) => setNewContactId(v || '')}>
                   <SelectTrigger><SelectValue placeholder="Vincular contato (opcional)" /></SelectTrigger>
                   <SelectContent>
                     {contacts.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
@@ -147,7 +147,7 @@ export function DealsTable({ deals, stages, contacts, users, allActivities }: Pr
               </div>
               <div className="space-y-2">
                 <Label>Responsável</Label>
-                <Select value={newOwnerId} onValueChange={setNewOwnerId}>
+                <Select value={newOwnerId} onValueChange={(v) => setNewOwnerId(v || '')}>
                   <SelectTrigger>
                     <SelectValue>
                       {users.find(u => u.id === newOwnerId)?.full_name || 

@@ -241,7 +241,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
 
           <div className="space-y-2">
             <Label>Etapa</Label>
-            <Select value={stageId} onValueChange={(v) => { setStageId(v); setTimeout(handleSave, 100) }}>
+            <Select value={stageId} onValueChange={(v) => { setStageId(v || ''); setTimeout(handleSave, 100) }}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a etapa" />
               </SelectTrigger>
@@ -255,7 +255,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
 
           <div className="space-y-2">
             <Label>Contato</Label>
-            <Select value={contactId} onValueChange={(v) => { setContactId(v); setTimeout(handleSave, 100) }}>
+            <Select value={contactId} onValueChange={(v) => { setContactId(v || ''); setTimeout(handleSave, 100) }}>
               <SelectTrigger>
                 <SelectValue placeholder="Vincular contato" />
               </SelectTrigger>
@@ -269,7 +269,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
 
           <div className="space-y-2">
             <Label>Responsável</Label>
-            <Select value={ownerId} onValueChange={(v) => { setOwnerId(v); setTimeout(handleSave, 100) }}>
+            <Select value={ownerId} onValueChange={(v) => { setOwnerId(v || ''); setTimeout(handleSave, 100) }}>
               <SelectTrigger>
                 <SelectValue>
                   {users.find(u => u.id === ownerId)?.full_name || 

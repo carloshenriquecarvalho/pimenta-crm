@@ -402,7 +402,7 @@ export function KanbanBoard({
               </div>
               <div className="space-y-2">
                 <Label>Contato</Label>
-                <Select value={newDealContact} onValueChange={setNewDealContact}>
+                <Select value={newDealContact} onValueChange={(v) => setNewDealContact(v || '')}>
                   <SelectTrigger><SelectValue placeholder="Vincular contato (opcional)" /></SelectTrigger>
                   <SelectContent>
                     {contacts.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
@@ -411,7 +411,7 @@ export function KanbanBoard({
               </div>
               <div className="space-y-2">
                 <Label>Responsável</Label>
-                <Select value={newDealOwner} onValueChange={setNewDealOwner}>
+                <Select value={newDealOwner} onValueChange={(v) => setNewDealOwner(v || '')}>
                   <SelectTrigger>
                     <SelectValue>
                       {users.find(u => u.id === newDealOwner)?.full_name || 
