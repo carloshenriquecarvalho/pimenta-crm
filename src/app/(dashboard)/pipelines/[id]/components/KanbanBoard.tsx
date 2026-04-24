@@ -43,12 +43,12 @@ type Stage = Database['public']['Tables']['stages']['Row']
 type Contact = Database['public']['Tables']['contacts']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Activity = Database['public']['Tables']['activities']['Row'] & {
-  user?: { full_name: string } | null
+  user?: { full_name: string | null } | null
 }
 
 type DealWithDetails = Deal & {
   contact?: { name: string } | null
-  owner?: { full_name: string; avatar_url: string | null } | null
+  owner?: { full_name: string | null; avatar_url: string | null } | null
 }
 
 const statusColors: Record<string, string> = {

@@ -36,7 +36,7 @@ type Profile = Database['public']['Tables']['profiles']['Row']
 type Deal = Database['public']['Tables']['deals']['Row']
 
 // Extended contact with owner profile
-type ContactWithDetails = Contact & { owner?: { full_name: string } | null }
+type ContactWithDetails = Contact & { owner?: { full_name: string | null } | null }
 
 interface Props {
   contacts: ContactWithDetails[]

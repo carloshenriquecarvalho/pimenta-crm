@@ -27,7 +27,7 @@ type Stage = Database['public']['Tables']['stages']['Row']
 type Contact = Database['public']['Tables']['contacts']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Activity = Database['public']['Tables']['activities']['Row'] & {
-  user?: { full_name: string } | null
+  user?: { full_name: string | null } | null
 }
 
 interface Props {
