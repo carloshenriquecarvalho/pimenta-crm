@@ -99,7 +99,7 @@ export function ContactForm({ initialData, users, onSuccess }: Props) {
         <Label htmlFor="owner_id">Responsável</Label>
         <Select 
           value={watch('owner_id')} 
-          onValueChange={(val) => setValue('owner_id', val)}
+          onValueChange={(val) => setValue('owner_id', val || undefined)}
         >
           <SelectTrigger>
             <span className="flex-1 text-left truncate">
