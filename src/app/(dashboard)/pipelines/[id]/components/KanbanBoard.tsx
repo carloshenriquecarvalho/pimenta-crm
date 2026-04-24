@@ -87,7 +87,6 @@ function KanbanCard({
   return (
     <div
       ref={setNodeRef}
-      style={style}
       {...attributes}
       {...listeners}
       onClick={onClick}
