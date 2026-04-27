@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useCallback, useTransition } from 'react'
+import { useState, useCallback, useTransition, useEffect } from 'react'
 import { Database } from '@/types/database'
 import { DealSheet } from '../../../deals/components/DealSheet'
 import { createDeal, moveDeal, addActivity } from '../../../deals/actions'
+import { createContact } from '../../../contacts/actions'
+import { useRouter } from 'next/navigation'
+type DealUpdate = Partial<Database['public']['Tables']['deals']['Row']>
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Plus, Calendar, DollarSign, User as UserIcon } from 'lucide-react'
+import { Plus, Calendar, UserPlus, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -29,6 +32,7 @@ import {
   useSensors,
   DragOverlay,
   closestCorners,
+  useDroppable,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -165,23 +169,26 @@ function KanbanColumn({
 }) {
   const totalValue = deals.reduce((sum, d) => sum + (d.value || 0), 0)
 
+  // Registra a coluna inteira como zona droppable usando o stage.id
+  const { setNodeRef } = useDroppable({ id: stage.id })
+
   return (
     <div className="flex-shrink-0 w-72 flex flex-col h-full">
       {/* Column Header */}
       <div className="flex items-center justify-between p-3 bg-card rounded-t-lg border border-b-0">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
-          <span className="text-sm font-semibold text-gray-800">{stage.name}</span>
-          <span className="text-xs bg-gray-100 text-gray-500 rounded-full px-1.5 py-0.5">{deals.length}</span>
+          <span className="text-sm font-semibold text-foreground">{stage.name}</span>
+          <span className="text-xs bg-muted text-muted-foreground rounded-full px-1.5 py-0.5">{deals.length}</span>
         </div>
         <div className="flex items-center gap-1">
-          <span className="text-xs text-green-700 font-medium">
+          <span className="text-xs text-green-600 dark:text-green-500 font-medium">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(totalValue)}
           </span>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 text-gray-400 hover:text-indigo-600"
+            className="h-6 w-6 text-muted-foreground hover:text-primary"
             onClick={() => onAddDeal(stage.id)}
           >
             <Plus className="h-3.5 w-3.5" />
@@ -189,8 +196,8 @@ function KanbanColumn({
         </div>
       </div>
 
-      {/* Cards Area */}
-      <div className="flex-1 overflow-y-auto border border-t-0 rounded-b-lg bg-background/50 p-2 space-y-2 min-h-[200px]">
+      {/* Cards Area - ref do droppable aqui */}
+      <div ref={setNodeRef} className="flex-1 overflow-y-auto border border-t-0 rounded-b-lg bg-background/50 p-2 space-y-2 min-h-[200px]">
         <SortableContext items={deals.map(d => d.id)} strategy={verticalListSortingStrategy}>
           {deals.map(deal => (
             <KanbanCard
@@ -200,7 +207,7 @@ function KanbanColumn({
             />
           ))}
           {deals.length === 0 && (
-            <div className="flex items-center justify-center h-16 text-xs text-gray-400">
+            <div className="flex items-center justify-center h-16 text-xs text-muted-foreground">
               Solte um deal aqui
             </div>
           )}
@@ -249,7 +256,24 @@ export function KanbanBoard({
   const [newDealContact, setNewDealContact] = useState('')
   const [newDealOwner, setNewDealOwner] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+  // Novo contato inline
+  const [localContacts, setLocalContacts] = useState<Contact[]>(contacts)
+  const [showNewContact, setShowNewContact] = useState(false)
+  const [newContactName, setNewContactName] = useState('')
+  const [newContactPhone, setNewContactPhone] = useState('')
+  const [newContactEmail, setNewContactEmail] = useState('')
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
+
+  // Sync state with props when server-side data changes (due to revalidatePath)
+  useEffect(() => {
+    setDeals(initialDeals)
+  }, [initialDeals])
+
+  // Sync local contacts
+  useEffect(() => {
+    setLocalContacts(contacts)
+  }, [contacts])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -339,11 +363,30 @@ export function KanbanBoard({
     const stage = stages.find(s => s.id === addStageId)
     if (!stage?.pipeline_id) { setIsCreating(false); return }
 
+    // Se estiver criando novo contato inline, cria primeiro
+    let contactId = newDealContact || null
+    if (showNewContact && newContactName.trim()) {
+      const contactResult = await createContact({
+        name: newContactName.trim(),
+        phone: newContactPhone.trim() || null,
+        email: newContactEmail.trim() || null,
+      })
+      if (contactResult.error) {
+        toast.error(`Erro ao criar contato: ${contactResult.error}`)
+        setIsCreating(false)
+        return
+      }
+      if (contactResult.data) {
+        contactId = contactResult.data.id
+        setLocalContacts(prev => [...prev, contactResult.data!])
+      }
+    }
+
     const result = await createDeal({
       title: newDealTitle,
       stage_id: addStageId,
       pipeline_id: stage.pipeline_id,
-      contact_id: newDealContact || null,
+      contact_id: contactId,
       owner_id: newDealOwner || null,
     })
     setIsCreating(false)
@@ -354,6 +397,11 @@ export function KanbanBoard({
       setAddStageId(null)
       setNewDealTitle('')
       setNewDealContact('')
+      setNewDealOwner('')
+      setShowNewContact(false)
+      setNewContactName('')
+      setNewContactPhone('')
+      setNewContactEmail('')
     }
   }
 
@@ -404,18 +452,58 @@ export function KanbanBoard({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Contato</Label>
-                <Select value={newDealContact} onValueChange={(v) => setNewDealContact(v || '')}>
-                  <SelectTrigger>
-                    <span className="flex-1 text-left truncate">
-                      {newDealContact ? contacts.find(c => c.id === newDealContact)?.name : "Vincular contato (opcional)"}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {contacts.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center justify-between">
+                  <Label>Contato</Label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowNewContact(v => !v)
+                      setNewDealContact('')
+                      setNewContactName('')
+                      setNewContactPhone('')
+                      setNewContactEmail('')
+                    }}
+                    className="flex items-center gap-1 text-xs text-primary hover:underline"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" />
+                    {showNewContact ? 'Selecionar existente' : 'Criar novo contato'}
+                  </button>
+                </div>
+
+                {!showNewContact ? (
+                  <Select value={newDealContact} onValueChange={(v) => setNewDealContact(v || '')}>
+                    <SelectTrigger>
+                      <span className="flex-1 text-left truncate">
+                        {newDealContact ? localContacts.find(c => c.id === newDealContact)?.name : "Vincular contato (opcional)"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {localContacts.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="space-y-2 p-3 rounded-lg border border-primary/30 bg-primary/5">
+                    <p className="text-xs text-muted-foreground font-medium">Novo contato</p>
+                    <Input
+                      placeholder="Nome *"
+                      value={newContactName}
+                      onChange={(e) => setNewContactName(e.target.value)}
+                    />
+                    <Input
+                      placeholder="Telefone / WhatsApp"
+                      value={newContactPhone}
+                      onChange={(e) => setNewContactPhone(e.target.value)}
+                    />
+                    <Input
+                      placeholder="E-mail"
+                      type="email"
+                      value={newContactEmail}
+                      onChange={(e) => setNewContactEmail(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
+
               <div className="space-y-2">
                 <Label>Responsável</Label>
                 <Select value={newDealOwner} onValueChange={(v) => setNewDealOwner(v || '')}>
@@ -446,7 +534,17 @@ export function KanbanBoard({
         users={users}
         activities={dealActivities}
         onClose={() => setSelectedDeal(null)}
-        onDealChange={() => setSelectedDeal(null)}
+        onDealChange={(updated: DealUpdate) => {
+          // No need for complex manual state update since revalidatePath + useEffect sync handles it,
+          // but we do it anyway for immediate UI feedback.
+          setDeals(prev =>
+            prev.map(d =>
+              d.id === selectedDeal?.id ? { ...d, ...updated } : d
+            )
+          )
+          setSelectedDeal(null)
+          router.refresh()
+        }}
       />
     </>
   )

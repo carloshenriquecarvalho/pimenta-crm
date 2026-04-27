@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Database } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -42,6 +42,12 @@ function SortableStageItem({ stage, onDelete, onUpdate }: SortableStageItemProps
     transition,
   } = useSortable({ id: stage.id })
 
+  const [name, setName] = useState(stage.name)
+
+  useEffect(() => {
+    setName(stage.name)
+  }, [stage.name])
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -60,8 +66,11 @@ function SortableStageItem({ stage, onDelete, onUpdate }: SortableStageItemProps
           className="h-8 w-8 rounded cursor-pointer border-0 p-0"
         />
         <Input 
-          defaultValue={stage.name} 
-          onBlur={(e) => onUpdate(stage.id, { name: e.target.value })}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={() => {
+            if (name !== stage.name) onUpdate(stage.id, { name })
+          }}
           className="h-8 flex-1"
         />
       </div>

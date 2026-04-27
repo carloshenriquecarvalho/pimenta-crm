@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import {
-  Trash2, CheckCircle2, XCircle, Circle, MessageSquare, Phone, Mail, Users, Calendar
+  Trash2, CheckCircle2, XCircle, Circle, MessageSquare, Phone, Mail, Users, Calendar, Copy, ExternalLink
 } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
@@ -37,7 +37,7 @@ interface Props {
   users: Profile[]
   activities: Activity[]
   onClose: () => void
-  onDealChange?: () => void
+  onDealChange?: (updatedDeal: Partial<Deal>) => void
 }
 
 const activityTypeIcons: Record<string, React.ReactNode> = {
@@ -80,7 +80,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
   async function handleSave() {
     if (!deal) return
     setIsSaving(true)
-    const result = await updateDeal(deal.id, {
+    const updatedFields = {
       title,
       value: parseFloat(value) || 0,
       stage_id: stageId || null,
@@ -90,30 +90,18 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
       status,
       lost_reason: status === 'lost' ? lostReason : null,
       notes,
-    })
+    }
+    const result = await updateDeal(deal.id, updatedFields)
     setIsSaving(false)
     if (result.error) toast.error(result.error)
     else {
       toast.success('Deal atualizado!')
-      onDealChange?.()
+      onDealChange?.(updatedFields)
     }
   }
 
-  async function handleStatusChange(newStatus: 'open' | 'won' | 'lost') {
-    if (!deal) return
+  function handleStatusChange(newStatus: 'open' | 'won' | 'lost') {
     setStatus(newStatus)
-    const result = await updateDeal(deal.id, { status: newStatus })
-    if (result.error) toast.error(result.error)
-    else {
-      toast.success(`Deal marcado como ${statusLabels[newStatus]}!`)
-      // Log activity
-      await addActivity({
-        deal_id: deal.id,
-        type: 'status_change',
-        content: `Status alterado para ${statusLabels[newStatus]}`,
-      })
-      onDealChange?.()
-    }
   }
 
   async function handleDelete() {
@@ -146,6 +134,18 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
 
   const contact = contacts.find(c => c.id === contactId)
 
+  function copyPhone(phone: string) {
+    // Limpa o número para copiar só dígitos + \+
+    const cleaned = phone.replace(/[^\d+]/g, '')
+    navigator.clipboard.writeText(cleaned)
+    toast.success('Número copiado!')
+  }
+
+  function openWhatsapp(phone: string) {
+    const cleaned = phone.replace(/[^\d]/g, '')
+    window.open(`https://wa.me/${cleaned}`, '_blank')
+  }
+
   return (
     <Sheet open={!!deal} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="sm:max-w-xl w-full overflow-y-auto p-0">
@@ -158,7 +158,6 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="text-lg font-bold border-0 p-0 h-auto focus-visible:ring-0 shadow-none"
-                  onBlur={handleSave}
                 />
               </SheetTitle>
               <Button variant="ghost" size="icon" onClick={handleDelete} className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0">
@@ -212,7 +211,6 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
                 value={lostReason}
                 onChange={(e) => setLostReason(e.target.value)}
                 placeholder="Descreva o motivo..."
-                onBlur={handleSave}
               />
             </div>
           )}
@@ -225,7 +223,6 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
                 type="number"
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
-                onBlur={handleSave}
               />
             </div>
             <div className="space-y-2">
@@ -234,14 +231,13 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
                 type="date"
                 value={expectedClose}
                 onChange={(e) => setExpectedClose(e.target.value)}
-                onBlur={handleSave}
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label>Etapa</Label>
-            <Select value={stageId} onValueChange={(v) => { setStageId(v || ''); setTimeout(handleSave, 100) }}>
+            <Select value={stageId} onValueChange={(v) => setStageId(v || '')}>
               <SelectTrigger>
                 <span className="flex-1 text-left truncate">
                   {stageId ? stages.find(s => s.id === stageId)?.name : "Selecione a etapa"}
@@ -257,7 +253,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
 
           <div className="space-y-2">
             <Label>Contato</Label>
-            <Select value={contactId} onValueChange={(v) => { setContactId(v || ''); setTimeout(handleSave, 100) }}>
+            <Select value={contactId} onValueChange={(v) => setContactId(v || '')}>
               <SelectTrigger>
                 <span className="flex-1 text-left truncate">
                   {contactId ? contacts.find(c => c.id === contactId)?.name : "Vincular contato"}
@@ -269,11 +265,39 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
                 ))}
               </SelectContent>
             </Select>
+
+            {/* WhatsApp do contato */}
+            {contact?.phone && (
+              <div className="flex items-center gap-2 mt-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                <Phone className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+                <span className="flex-1 text-sm font-medium text-foreground">{contact.phone}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                  title="Copiar número"
+                  onClick={() => copyPhone(contact.phone!)}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-green-600 hover:text-green-700"
+                  title="Abrir WhatsApp"
+                  onClick={() => openWhatsapp(contact.phone!)}
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label>Responsável</Label>
-            <Select value={ownerId} onValueChange={(v) => { setOwnerId(v || ''); setTimeout(handleSave, 100) }}>
+            <Select value={ownerId} onValueChange={(v) => setOwnerId(v || '')}>
               <SelectTrigger>
                 <span className="flex-1 text-left truncate">
                   {ownerId ? (users.find(u => u.id === ownerId)?.full_name || users.find(u => u.id === ownerId)?.email) : "Atribuir a..."}
@@ -292,7 +316,6 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             <Textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              onBlur={handleSave}
               placeholder="Anotações sobre este deal..."
               rows={3}
             />
@@ -303,7 +326,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             <h3 className="font-semibold text-sm">Histórico de Atividades</h3>
 
             {/* Add Activity */}
-            <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
+            <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
               <div className="flex gap-2">
                 <Select value={noteType} onValueChange={(v: 'note' | 'call' | 'email' | 'meeting') => setNoteType(v)}>
                   <SelectTrigger className="w-32">
@@ -337,11 +360,11 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
               )}
               {activities.map(act => (
                 <div key={act.id} className="flex gap-3 text-sm">
-                  <div className="flex-shrink-0 mt-0.5 p-1.5 rounded-full bg-indigo-50 text-indigo-600">
+                  <div className="flex-shrink-0 mt-0.5 p-1.5 rounded-full bg-primary/20 text-primary">
                     {activityTypeIcons[act.type] || <MessageSquare className="h-4 w-4" />}
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-800">{act.content}</p>
+                    <p className="text-foreground">{act.content}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {act.user?.full_name || 'Usuário'} · {format(new Date(act.created_at), "dd/MM 'às' HH:mm", { locale: ptBR })}
                     </p>
