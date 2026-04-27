@@ -133,6 +133,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
   }
 
   const contact = contacts.find(c => c.id === contactId)
+  const contactName = contact?.name || deal.contact?.name
 
   function copyPhone(phone: string) {
     // Limpa o número para copiar só dígitos + \+
@@ -256,7 +257,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             <Select value={contactId} onValueChange={(v) => setContactId(v || '')}>
               <SelectTrigger>
                 <span className="flex-1 text-left truncate">
-                  {contactId ? contacts.find(c => c.id === contactId)?.name : "Vincular contato"}
+                  {contactId ? contactName : "Vincular contato"}
                 </span>
               </SelectTrigger>
               <SelectContent>

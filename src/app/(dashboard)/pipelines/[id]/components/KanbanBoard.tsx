@@ -530,7 +530,7 @@ export function KanbanBoard({
       <DealSheet
         deal={selectedDeal}
         stages={stages}
-        contacts={contacts}
+        contacts={localContacts}
         users={users}
         activities={dealActivities}
         onClose={() => setSelectedDeal(null)}
