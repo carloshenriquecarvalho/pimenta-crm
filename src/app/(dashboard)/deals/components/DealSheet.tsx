@@ -128,7 +128,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
     else {
       toast.success('Atividade adicionada!')
       setNewNote('')
-      onDealChange?.()
+      onDealChange?.(deal)
     }
   }
 
@@ -328,7 +328,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             {/* Add Activity */}
             <div className="space-y-2 bg-muted/50 p-4 rounded-lg">
               <div className="flex gap-2">
-                <Select value={noteType} onValueChange={(v: 'note' | 'call' | 'email' | 'meeting') => setNoteType(v)}>
+                <Select value={noteType} onValueChange={(v) => setNoteType(v as 'note' | 'call' | 'email' | 'meeting')}>
                   <SelectTrigger className="w-32">
                     <span className="flex-1 text-left truncate">
                       {noteType === 'note' ? 'Nota' : noteType === 'call' ? 'Ligação' : noteType === 'email' ? 'E-mail' : 'Reunião'}

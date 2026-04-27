@@ -55,7 +55,7 @@ function SortableStageItem({ stage, onDelete, onUpdate }: SortableStageItemProps
 
   return (
     <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 bg-card border rounded-md shadow-sm mb-2 group">
-      <div {...attributes} {...listeners} className="cursor-grab text-gray-400 hover:text-gray-600">
+      <div {...attributes} {...listeners} suppressHydrationWarning className="cursor-grab text-gray-400 hover:text-gray-600">
         <GripVertical className="h-5 w-5" />
       </div>
       <div className="flex-1 flex items-center gap-2">

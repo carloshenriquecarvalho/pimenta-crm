@@ -54,7 +54,9 @@ function UserList({ initialUsers }: { initialUsers: User[] }) {
         // Optimistic UI update
         setUsers(prev =>
           prev.map(u => (u.id === editingUser.id ? { ...u, full_name: newName } : u))
-        closeEdit()
+        )
+          closeEdit();
+
         router.refresh()
       }
     })

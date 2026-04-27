@@ -87,3 +87,11 @@ export async function updateUserRole(userId: string, role: 'admin' | 'member') {
   revalidatePath('/settings')
   return { success: true }
 }
+
+export async function updateUserName(userId: string, fullName: string) {
+  const supabase = await createClient()
+  const { error } = await supabase.from('profiles').update({ full_name: fullName }).eq('id', userId)
+  if (error) return { error: error.message }
+  revalidatePath('/settings')
+  return { success: true }
+}
