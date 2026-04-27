@@ -103,9 +103,9 @@ returns boolean as $$
 $$ language sql security definer;
 
 -- Políticas
--- Profiles: Usuários podem ler todos, atualizar o próprio
+-- Profiles: Usuários podem ler todos, atualizar o próprio ou admin pode atualizar qualquer um
 create policy "Todos podem ver os perfis" on profiles for select using (true);
-create policy "Usuário pode atualizar o próprio perfil" on profiles for update using (auth.uid() = id);
+create policy "Usuário pode atualizar o próprio perfil" on profiles for update using (auth.uid() = id or is_admin());
 
 -- Pipelines e Stages: Todos autenticados podem ler, admins podem alterar
 create policy "Todos os autenticados podem ver pipelines" on pipelines for select to authenticated using (true);

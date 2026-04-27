@@ -90,8 +90,20 @@ export async function updateUserRole(userId: string, role: 'admin' | 'member') {
 
 export async function updateUserName(userId: string, fullName: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('profiles').update({ full_name: fullName }).eq('id', userId)
+  
+  // Verifica permissões
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  // Atualiza e retorna os dados atualizados
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ full_name: fullName })
+    .eq('id', userId)
+    .select()
+    .single()
+
   if (error) return { error: error.message }
   revalidatePath('/settings')
-  return { success: true }
+  return { data, success: true }
 }
