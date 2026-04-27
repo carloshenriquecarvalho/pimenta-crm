@@ -18,24 +18,3 @@ export default async function UsersPage() {
 
   return <UserListClient initialUsers={users || []} />
 }
-            </Button>
-          </li>
-        ))}
-      </ul>
-      <Dialog open={!!editingUser} onOpenChange={open => !open && closeEdit()}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Editar usuário</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nome completo" />
-          </div>
-          <DialogFooter>
-            <Button onClick={closeEdit} variant="ghost">Cancelar</Button>
-            <Button onClick={handleSave} disabled={isPending}>Salvar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
