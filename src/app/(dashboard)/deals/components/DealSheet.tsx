@@ -20,9 +20,10 @@ import { ptBR } from 'date-fns/locale'
 import {
   Trash2, CheckCircle2, XCircle, Circle, MessageSquare, Phone, Mail, Users, Calendar, Copy, ExternalLink
 } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-type Deal = Database['public']['Tables']['deals']['Row']
+type Deal = Database['public']['Tables']['deals']['Row'] & {
+  contact?: { name: string | null } | null
+}
 type Stage = Database['public']['Tables']['stages']['Row']
 type Contact = Database['public']['Tables']['contacts']['Row']
 type Profile = Database['public']['Tables']['profiles']['Row']
