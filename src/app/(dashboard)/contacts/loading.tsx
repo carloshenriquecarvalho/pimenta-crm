@@ -8,7 +8,7 @@ export default function ContactsLoading() {
         <Skeleton className="h-4 w-64" />
       </div>
 
-      <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
+      <div className="glass-panel p-6 rounded-lg border shadow-sm space-y-4">
         <div className="flex justify-between items-center gap-4">
           <Skeleton className="h-10 w-96" />
           <Skeleton className="h-10 w-32" />

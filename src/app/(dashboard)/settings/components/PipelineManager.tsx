@@ -95,7 +95,7 @@ export function PipelineManager({ pipelines, stages }: Props) {
             <div 
               key={pipeline.id}
               className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-colors ${
-                selectedPipelineId === pipeline.id ? 'bg-indigo-50 border-indigo-200' : 'bg-white hover:bg-gray-50'
+                selectedPipelineId === pipeline.id ? 'bg-primary/10 border-primary/20' : 'bg-card hover:bg-muted/50'
               }`}
               onClick={() => setSelectedPipelineId(pipeline.id)}
             >
@@ -117,7 +117,7 @@ export function PipelineManager({ pipelines, stages }: Props) {
       </div>
 
       {/* Stage Manager for Selected Pipeline */}
-      <div className="w-full md:w-2/3 border rounded-lg p-4 bg-white shadow-sm">
+      <div className="w-full md:w-2/3 border rounded-lg p-4 bg-card shadow-sm">
         {selectedPipeline ? (
           <StageManager pipelineId={selectedPipeline.id} stages={pipelineStages} />
         ) : (

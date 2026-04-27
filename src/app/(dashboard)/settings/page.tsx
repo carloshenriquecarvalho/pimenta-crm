@@ -30,10 +30,10 @@ export default async function SettingsPage() {
           <TabsTrigger value="pipelines">Pipelines e Etapas</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
         </TabsList>
-        <TabsContent value="pipelines" className="bg-white p-6 rounded-lg border shadow-sm">
+        <TabsContent value="pipelines" className="glass-panel p-6 rounded-lg border shadow-sm">
           <PipelineManager pipelines={pipelines} stages={stages} />
         </TabsContent>
-        <TabsContent value="users" className="bg-white p-6 rounded-lg border shadow-sm">
+        <TabsContent value="users" className="glass-panel p-6 rounded-lg border shadow-sm">
           <UserManager users={users} />
         </TabsContent>
       </Tabs>

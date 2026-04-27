@@ -67,7 +67,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
   const [contactId, setContactId] = useState(deal?.contact_id || '')
   const [ownerId, setOwnerId] = useState(deal?.owner_id || '')
   const [expectedClose, setExpectedClose] = useState(deal?.expected_close_date || '')
-  const [status, setStatus] = useState<'open' | 'won' | 'lost'>(deal?.status as any || 'open')
+  const [status, setStatus] = useState<'open' | 'won' | 'lost'>((deal?.status as 'open' | 'won' | 'lost') || 'open')
   const [lostReason, setLostReason] = useState(deal?.lost_reason || '')
   const [notes, setNotes] = useState(deal?.notes || '')
   const [newNote, setNewNote] = useState('')
@@ -150,7 +150,7 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
     <Sheet open={!!deal} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="sm:max-w-xl w-full overflow-y-auto p-0">
         {/* Header */}
-        <div className="p-6 border-b sticky top-0 bg-white z-10">
+        <div className="p-6 border-b sticky top-0 bg-background z-10">
           <SheetHeader>
             <div className="flex justify-between items-start">
               <SheetTitle className="text-lg">
@@ -243,7 +243,9 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             <Label>Etapa</Label>
             <Select value={stageId} onValueChange={(v) => { setStageId(v || ''); setTimeout(handleSave, 100) }}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecione a etapa" />
+                <span className="flex-1 text-left truncate">
+                  {stageId ? stages.find(s => s.id === stageId)?.name : "Selecione a etapa"}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {stages.map(s => (
@@ -257,7 +259,9 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             <Label>Contato</Label>
             <Select value={contactId} onValueChange={(v) => { setContactId(v || ''); setTimeout(handleSave, 100) }}>
               <SelectTrigger>
-                <SelectValue placeholder="Vincular contato" />
+                <span className="flex-1 text-left truncate">
+                  {contactId ? contacts.find(c => c.id === contactId)?.name : "Vincular contato"}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {contacts.map(c => (
@@ -271,11 +275,9 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             <Label>Responsável</Label>
             <Select value={ownerId} onValueChange={(v) => { setOwnerId(v || ''); setTimeout(handleSave, 100) }}>
               <SelectTrigger>
-                <SelectValue>
-                  {users.find(u => u.id === ownerId)?.full_name || 
-                   users.find(u => u.id === ownerId)?.email || 
-                   "Atribuir a..."}
-                </SelectValue>
+                <span className="flex-1 text-left truncate">
+                  {ownerId ? (users.find(u => u.id === ownerId)?.full_name || users.find(u => u.id === ownerId)?.email) : "Atribuir a..."}
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {users.map(u => (
@@ -303,9 +305,11 @@ export function DealSheet({ deal, stages, contacts, users, activities, onClose, 
             {/* Add Activity */}
             <div className="space-y-2 bg-gray-50 p-4 rounded-lg">
               <div className="flex gap-2">
-                <Select value={noteType} onValueChange={(v: any) => setNoteType(v)}>
+                <Select value={noteType} onValueChange={(v: 'note' | 'call' | 'email' | 'meeting') => setNoteType(v)}>
                   <SelectTrigger className="w-32">
-                    <SelectValue />
+                    <span className="flex-1 text-left truncate">
+                      {noteType === 'note' ? 'Nota' : noteType === 'call' ? 'Ligação' : noteType === 'email' ? 'E-mail' : 'Reunião'}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="note">Nota</SelectItem>

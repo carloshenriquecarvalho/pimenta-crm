@@ -33,7 +33,7 @@ export default async function ContactsPage() {
         </p>
       </div>
 
-      <div className="bg-white p-6 rounded-lg border shadow-sm">
+      <div className="glass-panel p-6 rounded-lg border shadow-sm">
         <ContactsTable 
           contacts={contacts || []} 
           users={users || []} 

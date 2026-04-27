@@ -170,7 +170,7 @@ export function DealsTable({ deals, stages, contacts, users, allActivities }: Pr
         </Dialog>
       </div>
 
-      <div className="border rounded-md bg-white">
+      <div className="glass-panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -187,7 +187,7 @@ export function DealsTable({ deals, stages, contacts, users, allActivities }: Pr
             {filtered.map(deal => (
               <TableRow
                 key={deal.id}
-                className="cursor-pointer hover:bg-gray-50"
+                className="cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => setSelectedDeal(deal)}
               >
                 <TableCell className="font-medium">{deal.title}</TableCell>

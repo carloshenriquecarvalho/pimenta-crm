@@ -31,7 +31,12 @@ export async function createDeal(data: {
   const { data: deal, error } = await supabase
     .from('deals')
     .insert({ ...data, owner_id: data.owner_id || user.id, position })
-    .select()
+    .select(`
+      *,
+      contact:contacts!deals_contact_id_fkey(name),
+      owner:profiles!deals_owner_id_fkey(full_name, avatar_url),
+      stage:stages!deals_stage_id_fkey(name, color)
+    `)
     .single()
 
   if (error) return { error: error.message }

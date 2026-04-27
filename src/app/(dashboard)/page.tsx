@@ -69,7 +69,7 @@ export default async function DashboardPage({ searchParams: searchParamsPromise 
   // Deals por responsável
   const byOwner: Record<string, { name: string; deals: number; value: number }> = {}
   periodDeals.forEach(d => {
-    const key = (d as any).owner?.full_name || 'Sem responsável'
+    const key = (d.owner as { full_name: string | null } | null)?.full_name || 'Sem responsável'
     if (!byOwner[key]) byOwner[key] = { name: key, deals: 0, value: 0 }
     byOwner[key].deals++
     byOwner[key].value += d.value || 0

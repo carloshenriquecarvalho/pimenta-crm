@@ -53,19 +53,21 @@ export function KanbanFilters({ users, currentOwner, currentStatuses, currentSea
   const statusBtnClass = (status: string) => {
     const isActive = currentStatuses.includes(status)
     const colors: Record<string, string> = {
-      open: isActive ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50',
-      won: isActive ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-white text-green-700 border-green-200 hover:bg-green-50',
-      lost: isActive ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-white text-red-700 border-red-200 hover:bg-red-50',
+      open: isActive ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-card text-blue-700 border-blue-200 hover:bg-blue-50',
+      won: isActive ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-card text-green-700 border-green-200 hover:bg-green-50',
+      lost: isActive ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-card text-red-700 border-red-200 hover:bg-red-50',
     }
     return `border text-xs px-3 py-1.5 rounded-md font-medium transition-colors ${colors[status]}`
   }
 
   return (
-    <div className="flex flex-wrap gap-3 items-center py-3 px-4 bg-white border-b">
+    <div className="flex flex-wrap gap-3 items-center py-3 px-4 bg-background border-b">
       {/* Owner Filter */}
       <Select value={currentOwner || 'all'} onValueChange={(v) => updateParam('owner', v === 'all' ? null : v)}>
         <SelectTrigger className="w-48 h-8 text-xs">
-          <SelectValue placeholder="Responsável" />
+          <span className="flex-1 text-left truncate">
+            {currentOwner && currentOwner !== 'all' ? (users.find(u => u.id === currentOwner)?.full_name || users.find(u => u.id === currentOwner)?.email || 'Responsável') : 'Responsável'}
+          </span>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os responsáveis</SelectItem>
@@ -97,8 +99,8 @@ export function KanbanFilters({ users, currentOwner, currentStatuses, currentSea
           defaultValue={currentSearch}
           onChange={(e) => {
             const v = e.target.value
-            clearTimeout((window as any).__kanbanSearchTimeout)
-            ;(window as any).__kanbanSearchTimeout = setTimeout(() => {
+            clearTimeout((window as unknown as { __kanbanSearchTimeout: ReturnType<typeof setTimeout> }).__kanbanSearchTimeout)
+            ;(window as unknown as { __kanbanSearchTimeout: ReturnType<typeof setTimeout> }).__kanbanSearchTimeout = setTimeout(() => {
               updateParam('search', v)
             }, 400)
           }}

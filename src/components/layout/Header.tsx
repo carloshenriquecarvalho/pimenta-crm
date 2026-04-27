@@ -5,6 +5,7 @@ import { logout } from '@/app/(auth)/actions'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -13,6 +14,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { LogOut, User as UserIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const routeNames: Record<string, string> = {
   '/': 'Dashboard',
@@ -31,10 +34,11 @@ export function Header() {
   const pageTitle = routeNames[pathname] || routeNames[basePath] || 'Pimenta CRM'
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-white px-6 shadow-sm">
-      <h1 className="text-xl font-semibold text-gray-900">{pageTitle}</h1>
+    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-background/80 backdrop-blur-md px-6 shadow-sm z-10 sticky top-0">
+      <h1 className="text-xl font-semibold text-foreground">{pageTitle}</h1>
       
       <div className="flex items-center gap-4">
+        <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center outline-none">
             <Avatar className="h-9 w-9 border border-gray-200">
@@ -45,12 +49,14 @@ export function Header() {
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{profile?.full_name || 'Usuário'}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-              </div>
-            </DropdownMenuLabel>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{profile?.full_name || 'Usuário'}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               className="text-red-600 cursor-pointer focus:bg-red-50 focus:text-red-700"

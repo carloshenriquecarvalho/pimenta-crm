@@ -14,7 +14,7 @@ export function DealsByOwnerChart({ data }: { data: { name: string; deals: numbe
         <XAxis dataKey="name" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} />
         <Tooltip
-          formatter={(v: any) => [v, 'Deals']}
+          formatter={(v: number) => [v, 'Deals']}
           contentStyle={{ borderRadius: 8, fontSize: 12 }}
         />
         <Bar dataKey="deals" fill="#6366f1" radius={[4, 4, 0, 0]} />

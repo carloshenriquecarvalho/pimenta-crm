@@ -23,7 +23,7 @@ export default async function DealsPage() {
         <h2 className="text-2xl font-bold tracking-tight">Deals</h2>
         <p className="text-muted-foreground">Acompanhe todos os negócios em andamento.</p>
       </div>
-      <div className="bg-white p-6 rounded-lg border shadow-sm">
+      <div className="glass-panel p-6 rounded-lg border shadow-sm">
         <DealsTable
           deals={dealsRes.data || []}
           stages={stagesRes.data || []}

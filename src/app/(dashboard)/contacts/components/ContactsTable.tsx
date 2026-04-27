@@ -98,7 +98,7 @@ export function ContactsTable({ contacts, users, deals }: Props) {
         </Dialog>
       </div>
 
-      <div className="border rounded-md bg-white">
+      <div className="glass-panel overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -114,7 +114,7 @@ export function ContactsTable({ contacts, users, deals }: Props) {
             {filteredContacts.map((contact) => (
               <TableRow 
                 key={contact.id} 
-                className="cursor-pointer hover:bg-gray-50"
+                className="cursor-pointer hover:bg-muted/50 transition-colors"
                 onClick={() => {
                   setSelectedContact(contact)
                   setIsEditMode(false)
@@ -218,7 +218,7 @@ export function ContactsTable({ contacts, users, deals }: Props) {
                     {contactDeals.length > 0 ? (
                       <div className="space-y-2">
                         {contactDeals.map(deal => (
-                          <div key={deal.id} className="p-3 border rounded bg-white flex justify-between items-center shadow-sm">
+                          <div key={deal.id} className="p-3 border rounded bg-card flex justify-between items-center shadow-sm">
                             <span className="font-medium text-sm">{deal.title}</span>
                             <span className="text-sm font-semibold text-green-600">
                               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: deal.currency || 'BRL' }).format(deal.value || 0)}

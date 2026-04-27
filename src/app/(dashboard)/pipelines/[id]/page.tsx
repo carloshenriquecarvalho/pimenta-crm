@@ -55,7 +55,7 @@ export default async function PipelinePage({ params: paramsPromise, searchParams
   return (
     <div className="flex flex-col h-full -m-6">
       {/* Header */}
-      <div className="px-6 pt-5 pb-3 bg-white border-b">
+      <div className="px-6 pt-5 pb-3 bg-background border-b">
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
           <Link href="/pipelines" className="hover:text-foreground flex items-center gap-1">
             <ChevronLeft className="h-4 w-4" /> Pipelines

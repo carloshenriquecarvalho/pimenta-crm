@@ -2,8 +2,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { Database } from '@/types/database'
 
-export async function createContact(data: any) {
+export async function createContact(data: Database['public']['Tables']['contacts']['Insert']) {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -22,7 +23,7 @@ export async function createContact(data: any) {
   return { data: contact }
 }
 
-export async function updateContact(id: string, data: any) {
+export async function updateContact(id: string, data: Database['public']['Tables']['contacts']['Update']) {
   const supabase = await createClient()
   const { error } = await supabase.from('contacts').update(data).eq('id', id)
   

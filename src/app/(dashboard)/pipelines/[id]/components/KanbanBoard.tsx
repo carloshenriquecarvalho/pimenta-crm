@@ -91,36 +91,38 @@ function KanbanCard({
       {...listeners}
       onClick={onClick}
       className={`
-        bg-white rounded-lg border shadow-sm p-3 cursor-pointer
-        hover:shadow-md hover:-translate-y-0.5 transition-all group
-        border-l-4
+        glass-panel rounded-lg p-3 cursor-pointer group relative overflow-hidden
       `}
-      style={{ ...style, borderLeftColor: deal.status === 'won' ? '#16a34a' : deal.status === 'lost' ? '#dc2626' : '#6366f1' }}
+      style={{ ...style }}
     >
-      <div className="space-y-2">
-        <p className="text-sm font-semibold text-gray-900 leading-tight">{deal.title}</p>
+      <div 
+        className="absolute left-0 top-0 bottom-0 w-1" 
+        style={{ backgroundColor: deal.status === 'won' ? '#16a34a' : deal.status === 'lost' ? '#dc2626' : 'var(--primary)' }} 
+      />
+      <div className="space-y-2 pl-1">
+        <p className="text-sm font-semibold text-foreground leading-tight group-hover:text-primary transition-colors">{deal.title}</p>
 
         {deal.contact?.name && (
-          <p className="text-xs text-gray-500 truncate">{deal.contact.name}</p>
+          <p className="text-xs text-muted-foreground truncate">{deal.contact.name}</p>
         )}
 
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-bold text-green-700">
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-sm font-bold text-green-600 dark:text-green-500">
             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: deal.currency || 'BRL' }).format(deal.value || 0)}
           </span>
-          <Badge className={`text-xs ${statusColors[deal.status || 'open']}`}>
+          <Badge variant={deal.status === 'won' ? 'default' : deal.status === 'lost' ? 'destructive' : 'secondary'} className="text-[10px]">
             {statusLabels[deal.status || 'open']}
           </Badge>
         </div>
 
-        <div className="flex items-center justify-between text-xs text-gray-400">
+        <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" />
             {format(new Date(deal.created_at), 'dd/MM', { locale: ptBR })}
           </span>
           {deal.owner && (
             <Avatar className="h-5 w-5">
-              <AvatarFallback className="text-[9px] bg-indigo-100 text-indigo-700">
+              <AvatarFallback className="text-[9px] bg-primary/20 text-primary">
                 {deal.owner.full_name?.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
@@ -135,14 +137,16 @@ function KanbanCard({
 function OverlayCard({ deal }: { deal: DealWithDetails }) {
   return (
     <div
-      className="bg-white rounded-lg border-2 border-indigo-400 shadow-xl p-3 rotate-2 opacity-90 w-64"
-      style={{ borderLeftColor: '#6366f1', borderLeftWidth: 4 }}
+      className="glass-panel rounded-lg ring-2 ring-primary shadow-2xl p-3 rotate-3 opacity-95 w-64 relative overflow-hidden"
     >
-      <p className="text-sm font-semibold">{deal.title}</p>
-      {deal.contact?.name && <p className="text-xs text-gray-500">{deal.contact.name}</p>}
-      <p className="text-sm font-bold text-green-700 mt-1">
-        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: deal.currency || 'BRL' }).format(deal.value || 0)}
-      </p>
+      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary" />
+      <div className="pl-1">
+        <p className="text-sm font-semibold text-foreground">{deal.title}</p>
+        {deal.contact?.name && <p className="text-xs text-muted-foreground">{deal.contact.name}</p>}
+        <p className="text-sm font-bold text-green-600 dark:text-green-500 mt-1">
+          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: deal.currency || 'BRL' }).format(deal.value || 0)}
+        </p>
+      </div>
     </div>
   )
 }
@@ -164,7 +168,7 @@ function KanbanColumn({
   return (
     <div className="flex-shrink-0 w-72 flex flex-col h-full">
       {/* Column Header */}
-      <div className="flex items-center justify-between p-3 bg-white rounded-t-lg border border-b-0">
+      <div className="flex items-center justify-between p-3 bg-card rounded-t-lg border border-b-0">
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: stage.color }} />
           <span className="text-sm font-semibold text-gray-800">{stage.name}</span>
@@ -186,7 +190,7 @@ function KanbanColumn({
       </div>
 
       {/* Cards Area */}
-      <div className="flex-1 overflow-y-auto border border-t-0 rounded-b-lg bg-gray-50 p-2 space-y-2 min-h-[200px]">
+      <div className="flex-1 overflow-y-auto border border-t-0 rounded-b-lg bg-background/50 p-2 space-y-2 min-h-[200px]">
         <SortableContext items={deals.map(d => d.id)} strategy={verticalListSortingStrategy}>
           {deals.map(deal => (
             <KanbanCard
@@ -402,7 +406,11 @@ export function KanbanBoard({
               <div className="space-y-2">
                 <Label>Contato</Label>
                 <Select value={newDealContact} onValueChange={(v) => setNewDealContact(v || '')}>
-                  <SelectTrigger><SelectValue placeholder="Vincular contato (opcional)" /></SelectTrigger>
+                  <SelectTrigger>
+                    <span className="flex-1 text-left truncate">
+                      {newDealContact ? contacts.find(c => c.id === newDealContact)?.name : "Vincular contato (opcional)"}
+                    </span>
+                  </SelectTrigger>
                   <SelectContent>
                     {contacts.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
@@ -412,11 +420,9 @@ export function KanbanBoard({
                 <Label>Responsável</Label>
                 <Select value={newDealOwner} onValueChange={(v) => setNewDealOwner(v || '')}>
                   <SelectTrigger>
-                    <SelectValue>
-                      {users.find(u => u.id === newDealOwner)?.full_name || 
-                       users.find(u => u.id === newDealOwner)?.email || 
-                       "Atribuir a..."}
-                    </SelectValue>
+                    <span className="flex-1 text-left truncate">
+                      {newDealOwner ? (users.find(u => u.id === newDealOwner)?.full_name || users.find(u => u.id === newDealOwner)?.email) : "Atribuir a..."}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     {users.map(u => <SelectItem key={u.id} value={u.id}>{u.full_name || u.email}</SelectItem>)}
