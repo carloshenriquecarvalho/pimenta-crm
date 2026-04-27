@@ -535,8 +535,7 @@ export function KanbanBoard({
         activities={dealActivities}
         onClose={() => setSelectedDeal(null)}
         onDealChange={(updated: DealUpdate) => {
-          // No need for complex manual state update since revalidatePath + useEffect sync handles it,
-          // but we do it anyway for immediate UI feedback.
+          // Merge updated fields into local state for instant UI feedback
           setDeals(prev =>
             prev.map(d =>
               d.id === selectedDeal?.id ? { ...d, ...updated } : d

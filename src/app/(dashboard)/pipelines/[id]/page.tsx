@@ -45,7 +45,7 @@ export default async function PipelinePage({ params: paramsPromise, searchParams
     .eq('pipeline_id', params.id)
     .order('created_at', { ascending: true }) // oldest first = highest priority
 
-  // Parse filters from URL — defaults: owner = all, statuses = ['open']
+  // Default to show all deals unless a specific owner is selected via URL
   const filterOwner = searchParams.owner ?? 'all'
   const filterStatuses = searchParams.statuses
     ? searchParams.statuses.split(',').filter(Boolean)
